@@ -129,6 +129,19 @@ export class EntityMetadataValidator {
                     const normalizedColumn = driver.normalizeType(
                         column,
                     ) as ColumnType
+
+
+                    // Add vector column type check for PostgreSQL
+                    if (
+                        driver.options.type === "postgres" &&
+                        (normalizedColumn as string === "vector(1536)" ||
+                            normalizedColumn as string === "vector(512)" ||
+                            normalizedColumn as string === "vector")
+                    ) {
+                        return
+                    }
+
+            
                     if (
                         driver.supportedDataTypes.indexOf(normalizedColumn) ===
                         -1
@@ -195,6 +208,7 @@ export class EntityMetadataValidator {
 
         // Postgres supports only STORED generated columns.
         if (driver.options.type === "postgres") {
+            
             const virtualColumn = entityMetadata.columns.find(
                 (column) =>
                     column.asExpression &&
